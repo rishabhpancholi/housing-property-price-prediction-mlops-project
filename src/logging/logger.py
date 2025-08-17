@@ -15,7 +15,7 @@ def get_logger(name: str, level = logging.INFO):
           name (str): Name of the logger(__name__ from the calling module).
           level(logging.level): Logging level(DBUG,INFO etc).
     """
-    # Making sure the logs folder exist and creating the log file path
+    # Making sure the logs folder exists and creating the log file path
     LOGS_FOLDER_PATH.mkdir(parents = True, exist_ok= True)
     log_file_path = LOGS_FOLDER_PATH/f"{name}.log"
 
@@ -55,7 +55,7 @@ def get_logger(name: str, level = logging.INFO):
 
 # Example usage
 if __name__ == "__main__":
-    logger = get_logger(__name__)
+    logger = get_logger('logging_tester')
     logger.info('The code has started to run')
 
     try:
