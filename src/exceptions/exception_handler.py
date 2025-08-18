@@ -52,7 +52,7 @@ if __name__ == "__main__":
         return c
     
     try:
-        print(divide(1,0))
+        print(divide(a,0))
     except Exception as e:
         custom_exc = CustomException(e,sys)
         logger.error(f'{custom_exc}')
