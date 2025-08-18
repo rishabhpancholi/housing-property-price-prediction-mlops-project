@@ -14,6 +14,7 @@ def get_logger(name: str, level = logging.INFO):
     Args:
           name (str): Name of the logger(__name__ from the calling module).
           level(logging.level): Logging level(DBUG,INFO etc).
+
     """
     # Making sure the logs folder exists and creating the log file path
     LOGS_FOLDER_PATH.mkdir(parents = True, exist_ok= True)
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     try:
         1/0
     except ZeroDivisionError as e:
-        logger.exception(f'Error occured : {e}')
+        logger.error(f'Error occured : {e}')
 
 
 
