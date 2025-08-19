@@ -1,0 +1,10 @@
+# Parameter values
+
+train_test_split:
+  TEST_RATIO: 0.1
+  VAL_RATIO: 0.1
+
+interim_data_paths:
+  TRAIN_DATA_PATH: "data/interim/train.csv"
+  VAL_DATA_PATH: "data/interim/val.csv"
+  TEST_DATA_PATH: "data/interim/test.csv"
