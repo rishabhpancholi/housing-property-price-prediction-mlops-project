@@ -9,12 +9,7 @@ class CustomException:
 
     """
     def __init__(self, error_message: str, error_details: sys):
-        """
-        Attributes:
-                    error_message(str): The original error message.
-                    error_details(sys): sys module to fetch exception details.
-
-        """
+        
         self.detailed_error_message = self.get_detailed_error_message(
             error_message,
             error_details
