@@ -1,13 +1,14 @@
+import os
 import yaml
-from pathlib import Path
+from dotenv import load_dotenv
 from dataclasses import dataclass
+
+# Loading the environment variables
+load_dotenv()
 
 # Loading params
 with open("params.yaml","r") as f:
     params = yaml.safe_load(f)
-
-# Base directory
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Creating a DataIngestionArtifact class
 @dataclass
@@ -16,9 +17,9 @@ class DataIngestionArtifact:
     This class stores all the artifact variables for data ingestion imported from constants.
 
     """
-    train_data_path:Path = BASE_DIR/Path(params["interim_data_paths"]["TRAIN_DATA_PATH"])
-    val_data_path:Path = BASE_DIR/Path(params["interim_data_paths"]["VAL_DATA_PATH"])
-    test_data_path:Path = BASE_DIR/Path(params["interim_data_paths"]["TEST_DATA_PATH"])
+    interim_train_data_key:str = os.getenv("INTERIM_TRAIN_DATA_KEY")
+    interim_val_data_key:str = os.getenv("INTERIM_VAL_DATA_KEY")
+    interim_test_data_key:str = os.getenv("INTERIM_TEST_DATA_KEY")
 
 # Example usage
 if __name__ == "__main__":
