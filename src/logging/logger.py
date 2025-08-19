@@ -10,11 +10,7 @@ LOGS_FOLDER_PATH = BASE_DIR / "logs"
 def get_logger(name: str, level = logging.INFO):
     """
     Creates and configures a logger
-
-    Args:
-          name (str): Name of the logger(__name__ from the calling module).
-          level(logging.level): Logging level(DBUG,INFO etc).
-
+    
     """
     # Making sure the logs folder exists and creating the log file path
     LOGS_FOLDER_PATH.mkdir(parents = True, exist_ok= True)
