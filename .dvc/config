@@ -3,3 +3,6 @@
 ['remote "origin"']
     url = s3://dvc
     endpointurl = https://dagshub.com/rishabhpancholi/housing-property-price-prediction-mlops-project.s3
+['remote "awsremote"']
+    url = s3://housepricesbucket130256
+    region = ap-south-1
