@@ -57,80 +57,123 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                 .value
             )
     
-    # extract overlooking 
-
-    def extract_overlooking(df, feature):
-            return np.where(
-                df.overlooking.isnull(),
-                np.nan,
-                np.where(df.overlooking.str.contains(feature), True, False)
-            )
-    
-    # extract clean floor values
-
-    def clean_floor_value(series):
-            return (
-                series.str.replace("Ground", "0")
-                    .str.replace("Lower Basement", "0")
-                    .str.replace("Upper Basement", "0")
-            )
-    
     # return the cleaned dataframe
 
     return (
             df
-            .assign(**{col: data[col].str.strip() for col in data.select_dtypes(include="O").columns})
-            .rename(columns=lambda col: col.lower().replace(" ", "_").split("_(")[0].split("(")[0])
-            .drop(columns=["index","description","status","society","dimensions","plot_area"])
+            .assign(**{
+                col: df[col].str.strip()
+                for col in df.select_dtypes(include = "O").columns
+            })
+            .rename(columns = lambda col: col.lower().replace(" ","_").split("_(")[0].split("(")[0])
+            .drop(columns = ["index","description","status","society","dimensions","plot_area"])
             .query('amount != "Call for Price"')
             .assign(
-                bathroom=lambda df: pd.to_numeric(df.bathroom.str.replace("> ","")),
-                balcony=lambda df: pd.to_numeric(df.balcony.str.replace("> ","")),
-                amount=lambda df: df.amount.pipe(convert_to_crores),
-                carpet_area=lambda df: df.carpet_area.pipe(remove_area_units_and_standardize),
-                super_area=lambda df: df.super_area.pipe(remove_area_units_and_standardize),
-                floor=lambda df: df.floor.str.replace("200 out of 200","2 out of 2"),
-                car_parking=lambda df: df.car_parking.str.replace(",",""),
-                num_bhk=lambda df: pd.to_numeric(
-                    np.where(
-                        df.title.str.contains("BHK"),
-                        df.title.str.split("BHK").str[0].str.replace(">","").str.strip(),
-                        np.nan
+                bathroom = lambda df: pd.to_numeric(df.bathroom.str.replace("> ","")),
+                balcony = lambda df: pd.to_numeric(df.balcony.str.replace("> ","")),
+                amount = lambda df: df.amount.pipe(convert_to_crores),
+                carpet_area = lambda df: df.carpet_area.pipe(remove_area_units_and_standardize),
+                super_area = lambda df: df.super_area.pipe(remove_area_units_and_standardize),
+                floor = lambda df: df.floor.str.replace("200 out of 200","2 out of 2"),
+                car_parking = lambda df: df.car_parking.str.replace(",",""),
+                num_bhk = lambda df: (
+                    pd.to_numeric(
+                        np.where(
+                            df.title.str.contains("BHK"),
+                            df.title.str.split("BHK").str[0].str.replace(">","").str.strip(),
+                            np.nan
                     )
+                  )
                 ),
-                is_studio=lambda df: np.where(df.title.str.contains('Studio'),1,0),
-                floor_num=lambda df: np.where(
-                    df.floor.str.contains("out of"),
-                    pd.to_numeric(clean_floor_value(df.floor.str.split("out of").str[0])),
-                    np.where(df.floor.isnull(), np.nan, pd.to_numeric(clean_floor_value(df.floor)))
-                ),
-                num_floors=lambda df: np.where(
-                    df.floor.str.contains("out of"),
-                    pd.to_numeric(df.floor.str.split("out of").str[1]),
-                    np.nan
-                ),
-                overlooking_garden=lambda df: extract_overlooking(df, "Garden"),
-                overlooking_mainroad=lambda df: extract_overlooking(df, "Main Road"),
-                overlooking_pool=lambda df: extract_overlooking(df, "Pool"),
-                parking_spots=lambda df: pd.to_numeric(df.car_parking.str.extract(r"(\d+)")[0], errors="coerce"),
-                parking_cover=lambda df: np.where(
-                    df.car_parking.isnull(),
-                    np.nan,
-                    df.car_parking.str.split(" ").str[1]
-                ),
+               is_studio = lambda df: np.where(df.title.str.contains('Studio'),1,0),
+               floor_num = lambda df: (
+                   np.where(
+                           df.floor.str.contains("out of"),
+                           pd.to_numeric(
+                               df.floor
+                               .str.split("out of")
+                               .str[0]
+                               .str.replace("Ground","0")
+                               .str.replace("Lower Basement","0")
+                               .str.replace("Upper Basement","0")
+                           ),
+                           np.where(
+                               df.floor.isnull(),
+                               np.nan,
+                               df.floor
+                               .str.split("out of")
+                               .str[0]
+                               .str.replace("Ground","0")
+                               .str.replace("Lower Basement","0")
+                               .str.replace("Upper Basement","0")
+                           )
+                   )
+               ),
+               num_floors = lambda df: (
+                   np.where(
+                       df.floor.str.contains("out of"),
+                       pd.to_numeric(
+                           df.floor
+                           .str.split("out of")
+                           .str[1]
+                       ),
+                       np.nan
+                   )
+               ),
+               overlooking_garden = lambda df: (
+                   np.where(
+                       df.overlooking.isnull(),
+                       np.nan,
+                       np.where(df.overlooking.str.contains("Garden"),True,False)
+                   )
+               ),
+               overlooking_mainroad = lambda df: (
+                   np.where(
+                       df.overlooking.isnull(),
+                       np.nan,
+                       np.where(df.overlooking.str.contains("Main Road"),True,False)
+                   )
+               ),
+               overlooking_pool = lambda df: (
+                   np.where(
+                       df.overlooking.isnull(),
+                       np.nan,
+                       np.where(df.overlooking.str.contains("Pool"),True,False)
+                   )
+               ),
+               parking_spots = lambda df: (
+                   pd.to_numeric(
+                       df.car_parking
+                       .str.extract(r"(\d+)")[0],
+                       errors = 'coerce'
+                   )
+               ),
+               parking_cover = lambda df: (
+                       np.where(
+                           df.car_parking.isnull(),
+                           np.nan,
+                           df.car_parking
+                           .str.split(" ")
+                           .str[1]
+                       )
+               )
             )
-            .assign(balcony=lambda df: np.where(df.floor_num == 0,0,df.balcony))
-            .loc[lambda df: (
-                ((df.carpet_area.between(90,10000)) | (df.super_area.between(100,10000)))
-                & df.price.between(200,10000)
-                & df.amount.between(0.1,100)
-                & (
+            .assign(
+                balcony = lambda df:(
+                    np.where(df.floor_num == 0,0,df.balcony)
+                )
+            )
+            .loc[lambda df: (df.carpet_area.between(90,10000)) | (df.super_area.between(100,10000))]
+            .loc[lambda df: (df.price.between(200,10000))]
+            .loc[lambda df: df.amount.between(0.1,100)]
+            .loc[lambda df:
+                (
                     df.num_bhk.isnull()
                     | (df.bathroom.isnull() | df.bathroom.lt(df.num_bhk + 2))
                     & (df.balcony.isnull() | df.balcony.lt(df.num_bhk + 2))
                 )
-            )]
-            .drop(columns=["title","floor","overlooking","car_parking","price"])
+            ]
+            .drop(columns = ["title","floor","overlooking","car_parking","price"])
             .drop_duplicates()
-            .dropna(subset=["transaction","num_bhk","bathroom"])
-)
+            .dropna(subset = ["transaction","num_bhk","bathroom"])
+    )
