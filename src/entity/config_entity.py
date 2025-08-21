@@ -12,13 +12,14 @@ with open("params.yaml","r") as f:
 
 # Creating a DataPusherConfig class
 @dataclass
-class DataPusherConfig:
+class ETLPipelineConfig:
     """
-    This class stores config variables required for data push to S3.
+    This class stores config variables required for the ETL pipeline.
     
     """
     bucket_name:str = os.getenv("BUCKET_NAME")
-    raw_data_path:str = os.getenv("RAW_DATA_KEY")
+    raw_data_path:str = os.getenv("RAW_DATA_PATH")
+    raw_data_key:str = os.getenv("RAW_DATA_KEY")
 
 # Creating a DataIngestionConfig class
 @dataclass
@@ -39,7 +40,7 @@ class DataIngestionConfig:
 
 # Example usage
 if __name__ == "__main__":
-    dpc = DataPusherConfig()
-    print(dpc)
+    etl = ETLPipelineConfig()
+    print(etl)
     dic = DataIngestionConfig()
     print(dic)

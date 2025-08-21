@@ -1,5 +1,6 @@
 import os
 import yaml
+import pandas as pd
 from dotenv import load_dotenv
 from dataclasses import dataclass
 
@@ -14,10 +15,10 @@ with open("params.yaml","r") as f:
 @dataclass
 class DataIngestionArtifact:
     """
-    This class stores all the artifact variables for data ingestion imported from constants.
+    This class stores all the artifact variables after data ingestion completion.
 
     """
-    interim_train_data_key:str = os.getenv("INTERIM_TRAIN_DATA_KEY")
+    interim_train_data:str = os.getenv("INTERIM_TRAIN_DATA_KEY")
     interim_val_data_key:str = os.getenv("INTERIM_VAL_DATA_KEY")
     interim_test_data_key:str = os.getenv("INTERIM_TEST_DATA_KEY")
 
