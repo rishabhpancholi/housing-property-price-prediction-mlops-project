@@ -22,7 +22,17 @@ class DataIngestionArtifact:
     interim_val_data_key:str = os.getenv("INTERIM_VAL_DATA_KEY")
     interim_test_data_key:str = os.getenv("INTERIM_TEST_DATA_KEY")
 
+# Creating a DataValidationArtifact class
+@dataclass
+class DataValidationArtifact(DataIngestionArtifact):
+    """
+    This class stores all the artifact variables after data validation completion.
+
+    """
+
 # Example usage
 if __name__ == "__main__":
     dia = DataIngestionArtifact()
+    dva = DataValidationArtifact()
     print(dia)
+    print(dva)
