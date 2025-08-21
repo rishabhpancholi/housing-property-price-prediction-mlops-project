@@ -10,7 +10,7 @@ load_dotenv()
 with open("params.yaml","r") as f:
     params = yaml.safe_load(f)
 
-# Creating a DataPusherConfig class
+# Creating a ETLPipelineConfig class
 @dataclass
 class ETLPipelineConfig:
     """
@@ -25,7 +25,7 @@ class ETLPipelineConfig:
 @dataclass
 class DataIngestionConfig:
     """
-    This class stores all the config variables for data ingestion imported from constants.
+    This class stores all the config variables required for data ingestion.
 
     """
     bucket_name:str = os.getenv("BUCKET_NAME")
@@ -38,9 +38,23 @@ class DataIngestionConfig:
     test_random_state:int = params["split"]["TEST_RANDOM_STATE"]
     val_random_state:int = params["split"]["VAL_RANDOM_STATE"]
 
+#Creating a DataValidationConfig class
+@dataclass
+class DataValidationConfig:
+    """
+    This class stores all the config variables required for data validation.
+
+    """
+    bucket_name:str = os.getenv("BUCKET_NAME")
+    interim_train_data_key:str = os.getenv("INTERIM_TRAIN_DATA_KEY")
+    interim_val_data_key:str = os.getenv("INTERIM_VAL_DATA_KEY")
+    interim_test_data_key:str = os.getenv("INTERIM_TEST_DATA_KEY")
+
 # Example usage
 if __name__ == "__main__":
     etl = ETLPipelineConfig()
     print(etl)
     dic = DataIngestionConfig()
     print(dic)
+    dvc = DataValidationConfig()
+    print(dvc)
