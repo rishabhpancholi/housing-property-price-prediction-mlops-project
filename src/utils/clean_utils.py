@@ -66,7 +66,6 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                 for col in df.select_dtypes(include = "O").columns
             })
             .rename(columns = lambda col: col.lower().replace(" ","_").split("_(")[0].split("(")[0])
-            .drop(columns = ["index","description","status","society","dimensions","plot_area"])
             .query('amount != "Call for Price"')
             .assign(
                 bathroom = lambda df: pd.to_numeric(df.bathroom.str.replace("> ","")),
@@ -85,7 +84,6 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                     )
                   )
                 ),
-               is_studio = lambda df: np.where(df.title.str.contains('Studio'),1,0),
                floor_num = lambda df: (
                    np.where(
                            df.floor.str.contains("out of"),
@@ -127,13 +125,6 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                        np.where(df.overlooking.str.contains("Garden"),True,False)
                    )
                ),
-               overlooking_mainroad = lambda df: (
-                   np.where(
-                       df.overlooking.isnull(),
-                       np.nan,
-                       np.where(df.overlooking.str.contains("Main Road"),True,False)
-                   )
-               ),
                overlooking_pool = lambda df: (
                    np.where(
                        df.overlooking.isnull(),
@@ -173,7 +164,7 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                     & (df.balcony.isnull() | df.balcony.lt(df.num_bhk + 2))
                 )
             ]
-            .drop(columns = ["title","floor","overlooking","car_parking","price"])
+            .drop(columns = ["title","facing","ownership""furnishing","floor","overlooking","car_parking","price","index","description","status","society","dimensions","plot_area"])
             .drop_duplicates()
             .dropna(subset = ["transaction","num_bhk","bathroom"])
     )
