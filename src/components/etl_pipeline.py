@@ -14,10 +14,9 @@ logger = get_logger('etl_pipeline')
 
 # DataPusher class
 class ETLPipeline:
-
     def __init__(self, config: ETLPipelineConfig):
         """
-        DataPusher class takes DataPusherConfig as input
+        ETLPipeline class takes ETLPipelineConfig as input
 
         """
 
