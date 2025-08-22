@@ -211,3 +211,6 @@ __marimo__/
 
 #logs
 /logs
+
+# demo_s3 file
+demo_s3.py
