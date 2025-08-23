@@ -10,7 +10,7 @@ load_dotenv()
 with open("params.yaml","r") as f:
     params = yaml.safe_load(f)
 
-# Creating a ETLPipelineConfig class
+# Creating an ETLPipelineConfig class
 @dataclass
 class ETLPipelineConfig:
     """
@@ -50,6 +50,16 @@ class DataValidationConfig:
     interim_val_data_key:str = os.getenv("INTERIM_VAL_DATA_KEY")
     interim_test_data_key:str = os.getenv("INTERIM_TEST_DATA_KEY")
 
+#Creating a DataTransformationConfig class
+@dataclass
+class DataTransformationConfig(DataValidationConfig):
+    """
+    This class stores all the config variables required for data transformation.
+
+    """
+    
+
+
 # Example usage
 if __name__ == "__main__":
     etl = ETLPipelineConfig()
@@ -58,3 +68,5 @@ if __name__ == "__main__":
     print(dic)
     dvc = DataValidationConfig()
     print(dvc)
+    dtc = DataTransformationConfig()
+    print(dtc)
