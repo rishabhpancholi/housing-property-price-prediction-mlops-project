@@ -7,7 +7,8 @@ from pathlib import Path
 from src.utils.clean_utils import clean_data
 from src.logging.logger import get_logger
 from src.exceptions.exception_handler import CustomException
-from src.entity.config_entity import ETLPipelineConfig,DataIngestionConfig
+from src.entity.config_entity import ETLPipelineConfig
+from src.entity.artifact_entity import ETLPipelineArtifact
 
 logger = get_logger('etl_pipeline')
 
@@ -42,7 +43,7 @@ class ETLPipeline:
         cleaned_df = clean_data(df)
         return cleaned_df
         
-    def load_data(self,df: pd.DataFrame)-> DataIngestionConfig:
+    def load_data(self,df: pd.DataFrame)-> ETLPipelineArtifact:
         """
         Method to load the cleaned data into the S3 Bucket
 
@@ -57,7 +58,7 @@ class ETLPipeline:
              Body = csv_buffer.getvalue()
             )
         
-        return DataIngestionConfig()
+        return ETLPipelineArtifact()
         
 # Initiate data push
 if __name__ == "__main__":
@@ -74,10 +75,10 @@ if __name__ == "__main__":
         logger.info("Raw data cleaned")
 
         logger.info("Pushing cleaned data to S3 bucket")
-        data_ingestion_config = etl_pipeline.load_data(cleaned_df)
+        etl_pipeline_artifact = etl_pipeline.load_data(cleaned_df)
         logger.info("Cleaned data pushed to S3 bucket")
 
-        print(data_ingestion_config)
+        print(etl_pipeline_artifact)
 
     except Exception as e:
         custom_exc = CustomException(e,sys)
