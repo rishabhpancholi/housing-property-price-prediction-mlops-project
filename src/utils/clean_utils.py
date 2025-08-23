@@ -84,52 +84,35 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                     )
                   )
                 ),
-               floor_num = lambda df: (
-                   np.where(
-                           df.floor.str.contains("out of"),
-                           pd.to_numeric(
-                               df.floor
-                               .str.split("out of")
-                               .str[0]
-                               .str.replace("Ground","0")
-                               .str.replace("Lower Basement","0")
-                               .str.replace("Upper Basement","0")
-                           ),
-                           np.where(
-                               df.floor.isnull(),
-                               np.nan,
-                               df.floor
-                               .str.split("out of")
-                               .str[0]
-                               .str.replace("Ground","0")
-                               .str.replace("Lower Basement","0")
-                               .str.replace("Upper Basement","0")
-                           )
-                   )
-               ),
-               num_floors = lambda df: (
-                   np.where(
-                       df.floor.str.contains("out of"),
-                       pd.to_numeric(
-                           df.floor
-                           .str.split("out of")
-                           .str[1]
-                       ),
-                       np.nan
-                   )
-               ),
+               floor_num = lambda df: pd.to_numeric(
+                    np.where(
+                        df.floor.str.contains("out of", na=False),
+                        df.floor.str.split("out of").str[0]
+                            .str.replace("Ground","0")
+                            .str.replace("Lower Basement","0")
+                            .str.replace("Upper Basement","0"),
+                        np.nan
+                    ), errors="coerce"
+                ),
+               num_floors = lambda df: pd.to_numeric(
+                    np.where(
+                        df.floor.str.contains("out of", na=False),
+                        df.floor.str.split("out of").str[1],
+                        np.nan
+                    ), errors="coerce"
+                ),
                overlooking_garden = lambda df: (
                    np.where(
                        df.overlooking.isnull(),
                        np.nan,
-                       np.where(df.overlooking.str.contains("Garden"),True,False)
+                       np.where(df.overlooking.str.contains("Garden"),1,0)
                    )
                ),
                overlooking_pool = lambda df: (
                    np.where(
                        df.overlooking.isnull(),
                        np.nan,
-                       np.where(df.overlooking.str.contains("Pool"),True,False)
+                       np.where(df.overlooking.str.contains("Pool"),1,0)
                    )
                ),
                parking_spots = lambda df: (
@@ -164,7 +147,8 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                     & (df.balcony.isnull() | df.balcony.lt(df.num_bhk + 2))
                 )
             ]
-            .drop(columns = ["title","facing","ownership""furnishing","floor","overlooking","car_parking","price","index","description","status","society","dimensions","plot_area"])
+            .loc[lambda df: df.num_floors.ge(df.floor_num)]
+            .drop(columns = ["title","facing","ownership","furnishing","floor","overlooking","car_parking","price","index","description","status","society","dimensions","plot_area"])
             .drop_duplicates()
             .dropna(subset = ["transaction","num_bhk","bathroom"])
     )
