@@ -57,7 +57,10 @@ class DataTransformationConfig(DataValidationConfig):
     This class stores all the config variables required for data transformation.
 
     """
-    
+    preprocessed_train_data_key:str = os.getenv("PREPROCESSED_TRAIN_DATA_KEY")
+    preprocessed_val_data_key:str = os.getenv("PREPROCESSED_VAL_DATA_KEY")
+    preprocessed_test_data_key:str = os.getenv("PREPROCESSED_TEST_DATA_KEY")
+
 
 
 # Example usage
