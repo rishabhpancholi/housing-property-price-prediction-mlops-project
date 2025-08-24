@@ -54,7 +54,7 @@ class DataValidation:
 
    def ingest_interim_data_and_validate(self)-> DataValidationArtifact:
       """
-      Method to ingest interim data from S3 bucket
+      Method to ingest interim data from S3 bucket and validate
 
       """
       logger.info("Connecting to S3") 
