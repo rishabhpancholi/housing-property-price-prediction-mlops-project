@@ -23,6 +23,7 @@ class HousePriceData(BaseModel):
    location:LocationEnum
    num_bhk:int = Field(..., ge = 0)
    transaction:Literal["Resale", "New Property", "Other", "Rent/Lease"]
+   furnishing:Optional[Literal["Unfurnished", "Furnished", "Semi-Furnished"]] = None
    carpet_area:Optional[float] = Field(gt = 0, default = None)
    super_area:Optional[float] = Field(gt = 0, default = None)
    bathroom:Optional[int] = Field(gt = 0, default = None)
@@ -39,9 +40,12 @@ class HousePriceData(BaseModel):
    
    facing:Optional[FacingEnum] = None
    overlooking_garden:Optional[Literal[0,1]] = None
+   overlooking_mainroad:Optional[Literal[0,1]] = None
    overlooking_pool:Optional[Literal[0,1]] = None
+   ownership:Optional[Literal["Freehold", "Leasehold", "Co-operative Society", "Power Of Attorney"]] = None
    parking_cover:Optional[Literal["Open", "Covered"]] = None
    parking_spots:Optional[int] = None
+   amount:float = Field(..., gt = 0)
 
 # Creating a DataValidation class
 class DataValidation:
@@ -81,8 +85,12 @@ class DataValidation:
       logger.info("Validating train,val and test dataframes")
       for df in interim_dfs:
          df = df.replace({np.nan:None})
+         columns = df.columns.to_list()
          for _,row in df.iterrows():
             row_pydantic = HousePriceData(**row.to_dict())
+            for key in row.to_dict().keys():
+               if key not in columns:
+                  logger.error(f"Column {key} not found in dataframe")
          
       logger.info("Validation successful")
 
