@@ -1,13 +1,16 @@
 import io
 import sys
 import boto3
+import warnings
 import pandas as pd
 from typing import Tuple
+warnings.filterwarnings("ignore")
 
 from src.logging.logger import get_logger
 from src.exceptions.exception_handler import CustomException
+from src.utils.imputation_utils import impute_data
 from src.utils.transform_utils import transform_data
-from src.entity.config_entity import DataTransformationConfig    
+from src.entity.config_entity import DataTransformationConfig       
 from src.entity.artifact_entity import DataTransformationArtifact
 
 logger = get_logger('data_transformation')
@@ -48,8 +51,12 @@ class DataTransformation:
        interim_dfs = tuple(interim_dfs)
        logger.info("Converted train,val and test to pandas dataframes")
 
+       logger.info("Applying imputation on train,val and test dataframes")
+       imputed_dfs = impute_data(interim_dfs)
+       logger.info("Successfully imputed train,val and test dataframes")
+
        logger.info("Applying transformation on train,val and test dataframes")
-       preprocessed_dfs = transform_data(interim_dfs)
+       preprocessed_dfs = transform_data(imputed_dfs)
        logger.info("Successfully transformed train,val and test dataframes")
 
        return preprocessed_dfs
@@ -87,7 +94,7 @@ if __name__ == "__main__":
    try:
         config = DataTransformationConfig()
         data_transformation = DataTransformation(config)
-        preprocessed_dfs = data_transformation.ingest_interim_data_and_transform()
+        preprocessed_dfs = data_transformation.ingest_interim_and_transform()
         data_transformation_artifact = data_transformation.push_preprocessed_to_s3(preprocessed_dfs)
         print(data_transformation_artifact)
    except Exception as e:
