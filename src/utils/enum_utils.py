@@ -92,7 +92,7 @@ class FacingEnum(str, Enum):
     SOUTH = "South"
     SOUTH_EAST = "South - East"
     NORTH_WEST = "North - West"
-    SOUTH_WEST = "South - West"
+    SOUTH_WEST = "South -West"
 
 
 # Example Usage

@@ -115,6 +115,13 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                        np.where(df.overlooking.str.contains("Pool"),1,0)
                    )
                ),
+               overlooking_mainroad = lambda df: (
+                   np.where(
+                       df.overlooking.isnull(),
+                       np.nan,
+                       np.where(df.overlooking.str.contains("Main Road"),1,0)
+                   )
+               ),
                parking_spots = lambda df: (
                    pd.to_numeric(
                        df.car_parking
@@ -148,7 +155,7 @@ def clean_data(df: pd.DataFrame)->pd.DataFrame:
                 )
             ]
             .loc[lambda df: df.num_floors.ge(df.floor_num)]
-            .drop(columns = ["title","facing","ownership","furnishing","floor","overlooking","car_parking","price","index","description","status","society","dimensions","plot_area"])
+            .drop(columns = ["title","floor","overlooking","car_parking","price","index","description","status","society","dimensions","plot_area"])
             .drop_duplicates()
             .dropna(subset = ["transaction","num_bhk","bathroom"])
-    )
+        )
