@@ -61,7 +61,16 @@ class DataTransformationConfig(DataValidationConfig):
     preprocessed_val_data_key:str = os.getenv("PREPROCESSED_VAL_DATA_KEY")
     preprocessed_test_data_key:str = os.getenv("PREPROCESSED_TEST_DATA_KEY")
 
+@dataclass
+class ModelTrainerConfig:
+    """
+    This class stores all the config variables required for model training.
 
+    """
+    bucket_name:str = os.getenv("BUCKET_NAME")
+    preprocessed_train_data_key:str = os.getenv("PREPROCESSED_TRAIN_DATA_KEY")
+    preprocessed_val_data_key:str = os.getenv("PREPROCESSED_VAL_DATA_KEY")
+    preprocessed_test_data_key:str = os.getenv("PREPROCESSED_TEST_DATA_KEY")
 
 # Example usage
 if __name__ == "__main__":
@@ -73,3 +82,5 @@ if __name__ == "__main__":
     print(dvc)
     dtc = DataTransformationConfig()
     print(dtc)
+    mtc = ModelTrainerConfig()
+    print(mtc)
