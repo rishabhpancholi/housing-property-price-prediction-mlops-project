@@ -1,7 +1,21 @@
 # Parameter values
 
 split:
-  TEST_RATIO: 0.1
-  VAL_RATIO: 0.1
-  TEST_RANDOM_STATE: 42
-  VAL_RANDOM_STATE: 42
+  TEST_SIZE: 0.1
+  RANDOM_STATE: 42
+
+train:
+  REGRESSOR: "GradientBoostingRegressor"
+  TARGET_TRANSFORMER: "log"
+  DROP_CORRELATED_THRESHOLD: 0.5291731839638032
+  FEATURE_SELECTOR_THRESHOLD: 0.03591298614899886
+
+  # Model Specific Hyperparameters
+
+  GradientBoostingRegressor:
+    learning_rate: 0.061888747853050124
+    max_depth: 5
+    max_features: "sqrt"
+    min_samples_split: 10
+    n_estimators: 249
+    subsample: 0.6249467246846266
