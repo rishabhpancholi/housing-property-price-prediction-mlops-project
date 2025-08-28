@@ -20,9 +20,9 @@ class DataIngestion:
       """
       self.config = config
 
-   def ingest_and_split(self)-> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+   def ingest_and_split(self)-> Tuple[pd.DataFrame, pd.DataFrame]:
       """
-      Method to ingest data from S3 bucket and split into train,val and test datasets
+      Method to ingest data from S3 bucket and split into train and test datasets
 
       """
       
@@ -39,32 +39,29 @@ class DataIngestion:
       df = pd.read_csv(io.StringIO(content.decode("utf-8")))
       logger.info("Raw data downloaded and converted into pandas dataframe")
 
-      logger.info("Splitting data into train, val and test")
-      train_df,val_df,test_df = split_data(
+      logger.info("Splitting data into train and test")
+      train_df,test_df = split_data(
             df,
-            self.config.test_ratio,
-            self.config.val_ratio,
-            self.config.test_random_state,
-            self.config.val_random_state
+            self.config.test_size,
+            self.config.random_state,
          )
-      logger.info("Data splitted into train, val and test")
+      logger.info("Data splitted into train and test")
 
-      return (train_df, val_df, test_df)
+      return (train_df, test_df)
 
-   def push_interim_to_s3(self, interim_dfs: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame])-> DataIngestionArtifact:
+   def push_interim_to_s3(self, interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> DataIngestionArtifact:
       """
-      Method to push train, val and test data to S3 buckets
+      Method to push train and test data to S3 buckets
 
       """
-      train_df,val_df,test_df = interim_dfs
+      train_df,test_df = interim_dfs
 
       logger.info("Connecting to S3") 
       s3_client = boto3.client('s3')
 
-      logger.info("Pushing train, val and test df to S3 bucket")
+      logger.info("Pushing train and test df to S3 bucket")
       for key,df in [
          (self.config.interim_train_data_key, train_df),
-         (self.config.interim_val_data_key, val_df),
          (self.config.interim_test_data_key, test_df)
       ]:
          
@@ -75,7 +72,7 @@ class DataIngestion:
             Key = key,
             Body = csv_buffer.getvalue()
          )
-      logger.info("Pushed train, val and test to S3 bucket")
+      logger.info("Pushed train and test to S3 bucket")
 
       return DataIngestionArtifact()
 
