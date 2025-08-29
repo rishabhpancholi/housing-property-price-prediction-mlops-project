@@ -11,12 +11,8 @@ from sklearn.base import BaseEstimator,TransformerMixin
 #Setting output to pandas dataframes
 sklearn.set_config(transform_output = 'pandas')
 
-from src.logging.logger import get_logger
-logger = get_logger('imputation_utils')
-
-
 # Function to impute missing data in the feature columns
-def impute_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def impute_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataFrame, pd.DataFrame]:
 
     """
     Function to impute missing data in the feature columns
@@ -220,11 +216,10 @@ def impute_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame])-> 
     ])
 
     
-    train_df,val_df,test_df = interim_dfs
+    train_df, test_df = interim_dfs
 
     imputed_train_df = imputation_pipeline.fit_transform(train_df)
-    imputed_val_df = imputation_pipeline.transform(val_df)
     imputed_test_df = imputation_pipeline.transform(test_df)
 
-    return (imputed_train_df, imputed_val_df, imputed_test_df)
+    return (imputed_train_df, imputed_test_df)
          

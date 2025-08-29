@@ -11,10 +11,10 @@ from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder,TargetEncoder,Rob
 sklearn.set_config(transform_output = 'pandas')
 
 # Function to transform data
-def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataFrame, pd.DataFrame]:
 
     """
-    Method to preprocess train, val and test dataframes
+    Method to preprocess train and test dataframes
 
     """
 
@@ -447,13 +447,12 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame])
         ("bathroom_per_room_transformer",bathroom_per_room_transformer,["bathroom","num_bhk"])
     ],remainder = 'passthrough')
         
-    train_df,val_df,test_df = interim_dfs
+    train_df, test_df = interim_dfs
 
     transformed_train_df = column_transformer.fit_transform(train_df, train_df['amount'])
-    transformed_val_df = column_transformer.transform(val_df)
     transformed_test_df = column_transformer.transform(test_df)
 
-    return (transformed_train_df, transformed_val_df, transformed_test_df)
+    return (transformed_train_df, transformed_test_df)
 
 
 
