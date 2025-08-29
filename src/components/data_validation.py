@@ -64,11 +64,10 @@ class DataValidation:
       logger.info("Connecting to S3") 
       s3_client = boto3.client('s3')
 
-      logger.info("Ingesting train, val and test df from S3 bucket")
+      logger.info("Ingesting train and test df from S3 bucket")
       interim_dfs = []
       for key in [
          self.config.interim_train_data_key,
-         self.config.interim_val_data_key,
          self.config.interim_test_data_key
       ]:
          response = s3_client.get_object(
@@ -80,14 +79,14 @@ class DataValidation:
          df = pd.read_csv(io.StringIO(content.decode("utf-8")))
          interim_dfs.append(df)
 
-      logger.info("Converted train,val and test to pandas dataframes")
+      logger.info("Converted train and test to pandas dataframes")
 
-      logger.info("Validating train,val and test dataframes")
+      logger.info("Validating train and test dataframes")
       for df in interim_dfs:
          df = df.replace({np.nan:None})
          columns = df.columns.to_list()
          for _,row in df.iterrows():
-            row_pydantic = HousePriceData(**row.to_dict())
+            HousePriceData(**row.to_dict())
             for key in row.to_dict().keys():
                if key not in columns:
                   logger.error(f"Column {key} not found in dataframe")
