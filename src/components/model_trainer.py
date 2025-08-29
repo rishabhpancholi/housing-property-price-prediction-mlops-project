@@ -2,13 +2,15 @@ import io
 import sys
 import yaml
 import boto3
+import joblib
 import pandas as pd
 from typing import Tuple
 
 from src.logging.logger import get_logger
 from src.exceptions.exception_handler import CustomException
 from src.entity.config_entity import ModelTrainerConfig
-from src.utils.train_utils import train_evaluate_and_register
+from src.entity.artifact_entity import ModelTrainerArtifact
+from src.utils.train_utils import train_and_evaluate
 
 logger = get_logger('model_trainer')
 
@@ -49,24 +51,41 @@ class ModelTrainer:
             df = pd.read_csv(io.StringIO(content.decode("utf-8")))
             preprocessed_dfs.append(df)
 
-            return preprocessed_dfs
+       return tuple(preprocessed_dfs)
        
-    def train_evaluate_and_register(self, preprocessed_dfs: Tuple[pd.DataFrame, pd.DataFrame]):
+    def train_evaluate_and_register(self, preprocessed_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> ModelTrainerArtifact:
         """
         Method to train the model and evaluate and register on Mlflow.
 
         """
         logger.info("Starting model training")
-        model_pipeline = train_evaluate_and_register(
-            regressor = self.config.regressor,
-            target_transformer = self.config.target_transformer,
+        model_pipeline = train_and_evaluate(
+            mlflow_tracking_uri = self.config.mlflow_tracking_uri,
+            repo_owner = self.config.repo_owner,
+            repo_name = self.config.repo_name,
+            regressor_name = self.config.regressor,
+            target_transformer_name = self.config.target_transformer,
             drop_correlated_threshold = self.config.drop_correlated_threshold,
             feature_selector_threshold = self.config.feature_selector_threshold,
             model_hyperparams = self.config.model_hyperparams,
             preprocessed_dfs = preprocessed_dfs
         )
-        logger.info("Model training completed and trained model registered in mlflow")
-           
+        logger.info("Model training completed")
+
+        logger.info("Connecting to S3") 
+        s3_client = boto3.client('s3')
+
+        logger.info("Pushing model pipeline to S3 bucket")
+        model_pipeline_buffer = io.BytesIO()
+        joblib.dump(model_pipeline, model_pipeline_buffer)
+        s3_client.put_object(
+            Bucket = self.config.bucket_name,
+            Key = self.config.model_pipeline_key,
+            Body = model_pipeline_buffer.getvalue()
+        )
+        logger.info("Model pipeline pushed to S3 bucket")
+     
+        return ModelTrainerArtifact()
 
 # Example usage
 if __name__ == "__main__":
@@ -74,6 +93,9 @@ if __name__ == "__main__":
         config = ModelTrainerConfig(params = params)
         model_trainer = ModelTrainer(config)
         preprocessed_dfs = model_trainer.ingest_preprocessed()
+        model_trainer_artifact = model_trainer.train_evaluate_and_register(preprocessed_dfs)
+        print(model_trainer_artifact)
+
    except Exception as e:
         custom_exp = CustomException(e,sys)
         logger.error(f"{custom_exp}")
