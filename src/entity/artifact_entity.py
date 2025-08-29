@@ -11,11 +11,11 @@ load_dotenv()
 with open("params.yaml","r") as f:
     params = yaml.safe_load(f)
 
-# Creating an ETLPipelineArtifact class
+# Creating a DataPusherArtifact class
 @dataclass
-class ETLPipelineArtifact:
+class DataPusherArtifact:
     """
-    This class stores all the artifact variables after ETL pipeline completion.
+    This class stores all the artifact variables after data pusher completion.
 
     """
     raw_data_key:str = os.getenv("RAW_DATA_KEY")
@@ -28,7 +28,6 @@ class DataIngestionArtifact:
 
     """
     interim_train_data_key:str = os.getenv("INTERIM_TRAIN_DATA_KEY")
-    interim_val_data_key:str = os.getenv("INTERIM_VAL_DATA_KEY")
     interim_test_data_key:str = os.getenv("INTERIM_TEST_DATA_KEY")
 
 # Creating a DataValidationArtifact class
@@ -46,17 +45,16 @@ class DataTransformationArtifact:
 
     """
     preprocessed_train_data_key:str = os.getenv("PREPROCESSED_TRAIN_DATA_KEY")  
-    preprocessed_val_data_key:str = os.getenv("PREPROCESSED_VAL_DATA_KEY")
     preprocessed_test_data_key:str = os.getenv("PREPROCESSED_TEST_DATA_KEY")
 
 
 # Example usage
 if __name__ == "__main__":
-    etl = ETLPipelineArtifact()
+    dpa = DataPusherArtifact()
     dia = DataIngestionArtifact()
     dva = DataValidationArtifact()
     dta = DataTransformationArtifact()
-    print(etl)
+    print(dpa)
     print(dia)
     print(dva)
     print(dta)
