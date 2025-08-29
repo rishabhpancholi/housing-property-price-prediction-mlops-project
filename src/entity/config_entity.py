@@ -67,6 +67,10 @@ class ModelTrainerConfig:
     bucket_name:str = os.getenv("BUCKET_NAME")
     preprocessed_train_data_key:str = os.getenv("PREPROCESSED_TRAIN_DATA_KEY")
     preprocessed_test_data_key:str = os.getenv("PREPROCESSED_TEST_DATA_KEY")
+    model_pipeline_key:str = os.getenv("MODEL_PIPELINE_KEY")
+    mlflow_tracking_uri:str = os.getenv("MLFLOW_TRACKING_URI")
+    repo_owner:str = os.getenv("REPO_OWNER")
+    repo_name:str = os.getenv("REPO_NAME")
     target_transformer:str = params["train"]["TARGET_TRANSFORMER"]
     drop_correlated_threshold:float = params["train"]["DROP_CORRELATED_THRESHOLD"]
     feature_selector_threshold:float = params["train"]["FEATURE_SELECTOR_THRESHOLD"]

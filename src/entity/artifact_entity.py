@@ -47,6 +47,14 @@ class DataTransformationArtifact:
     preprocessed_train_data_key:str = os.getenv("PREPROCESSED_TRAIN_DATA_KEY")  
     preprocessed_test_data_key:str = os.getenv("PREPROCESSED_TEST_DATA_KEY")
 
+@dataclass
+class ModelTrainerArtifact:
+    """
+    This class stores all the artifact variables after model training completion.
+
+    """
+    model_pipeline_key:str = os.getenv("MODEL_PIPELINE_KEY")
+
 
 # Example usage
 if __name__ == "__main__":
@@ -54,7 +62,9 @@ if __name__ == "__main__":
     dia = DataIngestionArtifact()
     dva = DataValidationArtifact()
     dta = DataTransformationArtifact()
+    mta = ModelTrainerArtifact()
     print(dpa)
     print(dia)
     print(dva)
     print(dta)
+    print(mta)
