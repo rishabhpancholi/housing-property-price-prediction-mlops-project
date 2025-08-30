@@ -32,8 +32,8 @@ class DataIngestionConfig:
     raw_data_key:str = os.getenv("RAW_DATA_KEY")
     interim_train_data_key:str = os.getenv("INTERIM_TRAIN_DATA_KEY")
     interim_test_data_key:str = os.getenv("INTERIM_TEST_DATA_KEY")
-    test_size:float = params["split"]["TEST_SIZE"]
-    random_state:int = params["split"]["RANDOM_STATE"]
+    test_size:float = params["ingest"]["TEST_SIZE"]
+    random_state:int = params["ingest"]["RANDOM_STATE"]
 
 #Creating a DataValidationConfig class
 @dataclass
