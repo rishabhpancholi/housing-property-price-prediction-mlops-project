@@ -11,6 +11,7 @@ from src.exceptions.exception_handler import CustomException
 from src.entity.config_entity import ModelTrainerConfig
 from src.entity.artifact_entity import ModelTrainerArtifact
 from src.utils.train_utils import train_and_evaluate
+from src.utils.compare_utils import give_best_model
 
 logger = get_logger('model_trainer')
 
@@ -75,15 +76,35 @@ class ModelTrainer:
         logger.info("Connecting to S3") 
         s3_client = boto3.client('s3')
 
-        logger.info("Pushing model pipeline to S3 bucket")
+        logger.info("Fetching model pipeline from S3 bucket")
+        try:
+            response = s3_client.get_object(
+                Bucket=self.config.bucket_name,
+                Key=self.config.model_pipeline_key
+            )
+            content = response["Body"].read()
+            existing_model_pipeline = joblib.load(io.BytesIO(content))
+        except s3_client.exceptions.NoSuchKey:
+            logger.info("No existing model found in S3. Using newly trained model as best.")
+            existing_model_pipeline = None
+
+        logger.info("Comparing model performances")
+        best_model_pipeline = give_best_model(
+            model_pipeline = model_pipeline,
+            existing_model_pipeline = existing_model_pipeline,
+            preprocessed_dfs = preprocessed_dfs
+        )
+        logger.info("Compared model performances")
+
+        logger.info("Pushing best model pipeline to S3 bucket")
         model_pipeline_buffer = io.BytesIO()
-        joblib.dump(model_pipeline, model_pipeline_buffer)
+        joblib.dump(best_model_pipeline, model_pipeline_buffer)
         s3_client.put_object(
             Bucket = self.config.bucket_name,
             Key = self.config.model_pipeline_key,
             Body = model_pipeline_buffer.getvalue()
         )
-        logger.info("Model pipeline pushed to S3 bucket")
+        logger.info("Best model pipeline pushed to S3 bucket")
      
         return ModelTrainerArtifact()
 
