@@ -28,11 +28,14 @@ class DataPusher:
         Method to extract raw data from data folder
 
         """
+        logger.info("Extracting raw data from raw data path")
         base_folder = Path(__file__).resolve().parent.parent.parent
         raw_data_path = base_folder/self.config.raw_data_path
 
         
         raw_df = pd.read_csv(raw_data_path)
+        logger.info("Raw data extracted")
+
         return raw_df
 
     def transform_data(self,df: pd.DataFrame)-> pd.DataFrame:
@@ -40,7 +43,10 @@ class DataPusher:
         Method to transform raw data into cleaned data
 
         """
+        logger.info("Cleaning raw data")
         cleaned_df = clean_data(df)
+        logger.info("Raw data cleaned")
+
         return cleaned_df
         
     def load_data(self,df: pd.DataFrame)-> DataPusherConfig:
@@ -48,6 +54,7 @@ class DataPusher:
         Method to load the cleaned data into the S3 Bucket
 
         """
+        logger.info("Pushing cleaned data to S3 bucket")
         s3_client = boto3.client('s3')
 
         csv_buffer = io.StringIO()
@@ -58,6 +65,8 @@ class DataPusher:
              Body = csv_buffer.getvalue()
             )
         
+        logger.info("Cleaned data pushed to S3 bucket")
+        
         return DataPusherArtifact()
         
 # Initiate data push
@@ -66,17 +75,9 @@ if __name__ == "__main__":
     data_pusher = DataPusher(config)
 
     try:
-        logger.info("Extracting raw data from raw data path")
         raw_df = data_pusher.extract_data()
-        logger.info("Raw data extracted")
-
-        logger.info("Cleaning raw data")
         cleaned_df = data_pusher.transform_data(raw_df)
-        logger.info("Raw data cleaned")
-
-        logger.info("Pushing cleaned data to S3 bucket")
         data_pusher_artifact = data_pusher.load_data(cleaned_df)
-        logger.info("Cleaned data pushed to S3 bucket")
 
         print(data_pusher_artifact)
 
