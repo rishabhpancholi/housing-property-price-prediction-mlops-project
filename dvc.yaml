@@ -1,19 +1,19 @@
 stages:
   push:
-    cmd: python src/components/data_pusher.py
+    cmd: python -m src.components.data_pusher
     deps:
       - data/raw/houses.csv
   ingest:
-    cmd: src/components/data_ingestion.py
+    cmd: python -m src.components.data_ingestion
     params:
       - ingest.RANDOM_STATE
       - ingest.TEST_SIZE
   validate:
-    cmd: src/components/data_validation.py
+    cmd: python -m src.components.data_validation
   transform:
-    cmd: src/components/data_transformation.py
+    cmd: python -m src.components.data_transformation
   train:
-    cmd: src/components/model_trainer.py
+    cmd: python -m src.components.model_trainer
     params:
       - train.REGRESSOR
       - train.TARGET_TRANSFORMER
