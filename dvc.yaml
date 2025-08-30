@@ -3,42 +3,17 @@ stages:
     cmd: python src/components/data_pusher.py
     deps:
       - data/raw/houses.csv
-      - src/utils/clean_utils.py
-      - src/components/data_pusher.py
-      - src/entity/config_entity.py
-      - src/entity/artifact_entity.py
   ingest:
     cmd: src/components/data_ingestion.py
-    deps:
-      - src/utils/split_utils.py
-      - src/components/data_ingestion.py
-      - src/entity/config_entity.py
-      - src/entity/artifact_entity.py
     params:
       - ingest.RANDOM_STATE
       - ingest.TEST_SIZE
   validate:
     cmd: src/components/data_validation.py
-    deps:
-      - src/utils/enum_utils.py
-      - src/components/data_validation.py
-      - src/entity/config_entity.py
-      - src/entity/artifact_entity.py
   transform:
     cmd: src/components/data_transformation.py
-    deps:
-      - src/utils/imputation_utils.py
-      - src/utils/transform_utils.py
-      - src/components/data_transformation.py
-      - src/entity/config_entity.py
-      - src/entity/artifact_entity.py
   train:
     cmd: src/components/model_trainer.py
-    deps:
-      - src/utils/train_utils.py
-      - src/components/model_trainer.py
-      - src/entity/config_entity.py
-      - src/entity/artifact_entity.py
     params:
       - train.REGRESSOR
       - train.TARGET_TRANSFORMER
