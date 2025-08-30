@@ -138,6 +138,7 @@ celerybeat.pid
 .env
 .envrc
 .venv
+.new_venv
 env/
 venv/
 ENV/
@@ -216,3 +217,4 @@ __marimo__/
 demo_s3.py
 /model
 /models
+/params.yaml
