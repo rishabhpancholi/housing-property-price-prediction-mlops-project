@@ -25,3 +25,9 @@ stages:
       - train.GradientBoostingRegressor.min_samples_split
       - train.GradientBoostingRegressor.n_estimators
       - train.GradientBoostingRegressor.subsample
+      - train.RandomForestRegressor.n_estimators
+      - train.RandomForestRegressor.max_features
+      - train.RandomForestRegressor.max_depth
+      - train.RandomForestRegressor.min_samples_split
+      - ingest.RANDOM_STATE
+      - ingest.TEST_SIZE
