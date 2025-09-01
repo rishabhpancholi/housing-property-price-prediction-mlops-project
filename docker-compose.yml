@@ -5,9 +5,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - REDIS_URL = ${REDIS_URL}
-      - BUCKET_NAME = ${BUCKET_NAME}
-      - MODEL_PIPELINE_KEY = ${MODEL_PIPELINE_KEY}
+      - REDIS_URL=${REDIS_URL}
+      - BUCKET_NAME=${BUCKET_NAME}
+      - MODEL_PIPELINE_KEY=${MODEL_PIPELINE_KEY}
     depends_on:
       - redis
       - prometheus
