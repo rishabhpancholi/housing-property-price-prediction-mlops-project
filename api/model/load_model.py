@@ -16,8 +16,8 @@ def load_model(config: AppConfig)-> Pipeline:
     s3_client = boto3.client("s3")
 
     response = s3_client.get_object(
-        bucket = config.bucket_name,
-        key = config.model_pipeline_key
+        Bucket = config.bucket_name,
+        Key = config.model_pipeline_key
     )
 
     content = response["Body"].read()
