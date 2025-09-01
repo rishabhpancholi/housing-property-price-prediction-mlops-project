@@ -215,6 +215,7 @@ __marimo__/
 
 # demo_s3 file
 demo_s3.py
+demo_api_caller.py
 /model
 /models
 /params.yaml
