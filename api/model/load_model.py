@@ -2,7 +2,7 @@ import io
 import boto3
 import joblib
 from sklearn.pipeline import Pipeline
-from app.core.config import AppConfig
+from api.core.config import AppConfig
 
 # App Config
 config = AppConfig()
