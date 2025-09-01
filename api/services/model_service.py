@@ -1,7 +1,7 @@
 import pandas as pd
-from app.core.config import AppConfig
-from app.model.load_model import load_model
-from app.cache.redis_cache import get_cached_prediction,set_cached_prediction
+from api.core.config import AppConfig
+from api.model.load_model import load_model
+from api.cache.redis_cache import get_cached_prediction,set_cached_prediction
 
 # App Config
 config = AppConfig()
