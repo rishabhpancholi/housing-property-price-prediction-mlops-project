@@ -2,9 +2,9 @@ from fastapi import FastAPI,Request
 from fastapi.responses import JSONResponse
 
 # Exception handler for requests
-def register_exception_handlers(app: FastAPI):
+def register_exception_handler(app: FastAPI):
     """
-    Registers exception handlers for FastAPI
+    Registers exception handler for FastAPI
 
     """
     @app.add_exception_handler(Exception)
