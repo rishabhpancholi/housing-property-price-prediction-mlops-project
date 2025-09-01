@@ -6,7 +6,7 @@ from api.core.config import AppConfig
 config = AppConfig()
 
 # Setting up redis
-redis_client = redis.Redis.from_url(config.REDIS_URL)
+redis_client = redis.Redis.from_url(config.redis_url)
 
 # Function to get cached predictions from redis
 def get_cached_prediction(key: str):
