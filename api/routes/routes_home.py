@@ -5,7 +5,7 @@ home_router = APIRouter()
 
 # Creating a prediction route
 @home_router.get("/")
-def predict()-> dict:
+def home()-> dict:
     """
     Returns welcome message for the API
 
