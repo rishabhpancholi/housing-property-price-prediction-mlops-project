@@ -10,21 +10,8 @@ from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder,TargetEncoder,Rob
 #Setting output to pandas dataframes
 sklearn.set_config(transform_output = 'pandas')
 
-# Function to transform data
-def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataFrame, pd.DataFrame]:
-
-    """
-    Method to preprocess train and test dataframes
-
-    """
-
-    # Column Transformers
-    transaction_transformer = Pipeline(steps = [
-        ("grouper",RareLabelEncoder(tol = 0.1, n_categories = 2, replace_with = "Resale")),
-        ("encoder",OneHotEncoder(sparse_output = False,handle_unknown = 'ignore'))
-    ])
-
-    def house_size_binner(X):
+# Function to bin hoouse sizes
+def house_size_binner(X):
         columns = X.columns.to_list()
 
         return (
@@ -43,21 +30,8 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
             .drop(columns = columns)
         )
 
-    num_bhk_pipe1 = Pipeline(steps = [
-        ("scaler",MinMaxScaler())
-    ])
-
-    num_bhk_pipe2 = Pipeline(steps = [
-        ("house_size_binner",FunctionTransformer(func = house_size_binner)),
-        ("encoder",OrdinalEncoder(categories = [["small","normal","big"]]))
-    ])
-
-    num_bhk_transformer = FeatureUnion(transformer_list = [
-        ("num_bhk_pipe1",num_bhk_pipe1),
-        ("num_bhk_pipe2",num_bhk_pipe2)
-    ])
-
-    def bathroom_num_binner(X):
+# Function to bin bathroom numbers
+def bathroom_num_binner(X):
         columns = X.columns.to_list()
 
         return (
@@ -76,37 +50,8 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
             .drop(columns = columns)
         )
 
-    bathroom_pipe1 = Pipeline(steps = [
-        ("scaler",MinMaxScaler())
-    ])
-
-    bathroom_pipe2 = Pipeline(steps = [
-        ("bathroom_num_binner",FunctionTransformer(func = bathroom_num_binner)),
-        ("encoder",OrdinalEncoder(categories = [["low","medium","high"]]))
-    ])
-
-    bathroom_transformer = FeatureUnion(transformer_list = [
-        ("bathroom_pipe1",bathroom_pipe1),
-        ("bathroom_pipe2",bathroom_pipe2)
-    ])
-
-    def bathroom_num_binner(X):
-        columns = X.columns.to_list()
-
-    furnishing_pipe1 = Pipeline(steps = [
-        ("encoder",OrdinalEncoder(categories = [["Unfurnished","Semi-Furnished","Furnished"]])),
-    ])
-
-    furnishing_pipe2 = Pipeline(steps = [
-        ("is_unfurnished",FunctionTransformer(func = lambda x: np.where(x == 'Unfurnished',1,0)))
-    ])
-
-    furnishing_transformer = FeatureUnion(transformer_list = [
-        ("furnishing_pipe1",furnishing_pipe1),
-        ("furnishing_pipe2",furnishing_pipe2)
-    ])
-
-    def floor_height_binner(X):
+# Function to bin floor heights
+def floor_height_binner(X):
 
         columns = X.columns.to_list()
 
@@ -126,7 +71,8 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
             .drop(columns = columns)
         )
 
-    def building_height_binner(X):
+# Function to bin building heights
+def building_height_binner(X):
 
         columns = X.columns.to_list()
 
@@ -145,6 +91,230 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
             )
             .drop(columns = columns)
         )
+
+# Function to bin cities
+def city_binner(X):
+        
+        columns = X.columns.to_list()
+
+        return (
+            X.assign(
+                city_tier = lambda df:(
+                    np.where(
+                        df.location.isin(["mumbai","gurgaon","new-delhi"]),
+                        1,
+                        0
+                    )
+                )
+            )
+            .drop(columns = columns)
+        )
+
+# Function to bin directions
+def direction_binner(X):
+
+        columns = X.columns.to_list()
+
+        return (
+            X.assign(
+                direction_tier = lambda df:(
+                    np.where(
+                        df.facing.isin(["North - East","North - West"]),
+                        1,
+                        0
+                    )
+                )
+            )
+            .drop(columns = columns)
+        )
+
+# Function to bin parking
+def has_parking(X):
+
+        columns = X.columns.to_list()
+
+        return (
+            X.assign(
+                has_parking = lambda df:(
+                    np.select(
+                                [
+                                    df.parking_spots.eq(0),
+                                    df.parking_spots.eq(1)
+                                ],
+                                ["no parking","single"],
+                                default = "multiple"
+                            )
+                )
+            )
+            .drop(columns = columns)
+        )
+
+# Function to calculate effective area
+def effective_area(X):
+
+        columns = X.columns.to_list()
+
+        return(
+            X
+            .assign(
+                effective_area = lambda df:(
+                    np.where(
+                        df.carpet_area.eq(-1),
+                        df.super_area,
+                        df.carpet_area
+                    )
+                ),
+                carpet_areamissing = lambda df:(
+                    np.where(
+                        df.carpet_area.eq(-1),
+                        1,
+                        0
+                    )
+                ),
+                super_areamissing = lambda df:(
+                    np.where(
+                        df.super_area.eq(-1),
+                        1,
+                        0
+                    )
+                )
+            )
+            .drop(columns = columns)
+        )
+
+# Function to calculate area per room
+def area_per_room(X):
+
+        columns = X.columns.to_list()
+
+        return(
+            X
+            .assign(
+                area_per_room = lambda df:(
+                    np.where(
+                        df.carpet_area.eq(-1),
+                        df.super_area/df.num_bhk,
+                        df.carpet_area/df.num_bhk
+                    )
+                )
+            )
+            .drop(columns = columns)
+        )
+
+# Function to calculate balcony per room
+def balcony_per_room(X):
+
+        columns = X.columns.to_list()
+
+        return(
+            X
+            .assign(
+                balcony_per_room = lambda df:(
+                    df.balcony/df.num_bhk
+                )
+            )
+            .drop(columns = columns)
+        )
+
+# Function to calculate bathroom per room
+def bathroom_per_room(X):
+
+        columns = X.columns.to_list()
+
+        return(
+            X
+            .assign(
+                bathroom_per_room = lambda df:(
+                    df.bathroom/df.num_bhk
+                )
+            )
+            .drop(columns = columns)
+        )
+
+# Function to bin furnishing status
+def is_unfurnished(X):
+        
+        columns = X.columns.to_list()
+
+        return (
+            X.assign(
+                is_unfurnished = lambda df:(
+                    np.where(
+                        df.furnishing.isin(["Unfurnished"]),
+                        1,
+                        0
+                    )
+                )
+            )
+            .drop(columns = columns)
+        )
+
+# Function to give nearest integer
+def nearest_integer(x): 
+
+    return np.round(x)
+
+# Function to take log
+def log_transformer(x): 
+
+    return np.log(x)
+
+# Function to transform data
+def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataFrame, pd.DataFrame, ColumnTransformer]:
+
+    """
+    Method to preprocess train and test dataframes
+
+    """
+
+    # Column Transformers
+    transaction_transformer = Pipeline(steps = [
+        ("grouper",RareLabelEncoder(tol = 0.1, n_categories = 2, replace_with = "Resale")),
+        ("encoder",OneHotEncoder(sparse_output = False,handle_unknown = 'ignore'))
+    ])
+
+
+    num_bhk_pipe1 = Pipeline(steps = [
+        ("scaler",MinMaxScaler())
+    ])
+
+    num_bhk_pipe2 = Pipeline(steps = [
+        ("house_size_binner",FunctionTransformer(func = house_size_binner)),
+        ("encoder",OrdinalEncoder(categories = [["small","normal","big"]]))
+    ])
+
+    num_bhk_transformer = FeatureUnion(transformer_list = [
+        ("num_bhk_pipe1",num_bhk_pipe1),
+        ("num_bhk_pipe2",num_bhk_pipe2)
+    ])
+
+
+    bathroom_pipe1 = Pipeline(steps = [
+        ("scaler",MinMaxScaler())
+    ])
+
+    bathroom_pipe2 = Pipeline(steps = [
+        ("bathroom_num_binner",FunctionTransformer(func = bathroom_num_binner)),
+        ("encoder",OrdinalEncoder(categories = [["low","medium","high"]]))
+    ])
+
+    bathroom_transformer = FeatureUnion(transformer_list = [
+        ("bathroom_pipe1",bathroom_pipe1),
+        ("bathroom_pipe2",bathroom_pipe2)
+    ])
+
+    furnishing_pipe1 = Pipeline(steps = [
+        ("encoder",OrdinalEncoder(categories = [["Unfurnished","Semi-Furnished","Furnished"]])),
+    ])
+
+    furnishing_pipe2 = Pipeline(steps = [
+        ("is_unfurnished",FunctionTransformer(func = is_unfurnished))
+    ])
+
+    furnishing_transformer = FeatureUnion(transformer_list = [
+        ("furnishing_pipe1",furnishing_pipe1),
+        ("furnishing_pipe2",furnishing_pipe2)
+    ])
 
     floor_num_pipe1 = Pipeline(steps = [
         ("scaler",RobustScaler())
@@ -174,23 +344,6 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
         ("num_floors_pipe2",num_floors_pipe2)
     ])
 
-    def city_binner(X):
-        
-        columns = X.columns.to_list()
-
-        return (
-            X.assign(
-                city_tier = lambda df:(
-                    np.where(
-                        df.location.isin(["mumbai","gurgaon","new-delhi"]),
-                        1,
-                        0
-                    )
-                )
-            )
-            .drop(columns = columns)
-        )
-
     location_pipe1 = Pipeline(steps = [
         ("target_encoder", TargetEncoder())
     ])
@@ -204,28 +357,8 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
         ("location_pipe2",location_pipe2)
     ])
 
-    def price_binner(X):
-
-        columns = X.columns.to_list()
-
-        return (
-            X.assign(
-                price_range = lambda df:(
-                    np.select(
-                        [
-                            df.price.between(0,4000,inclusive = "left"),
-                            df.price.between(4000,6000,inclusive = "left")
-                        ],
-                        ["low","medium"],
-                        default = "high"
-                    )
-                )
-            )
-            .drop(columns = columns)
-        )
-
     balcony_transformer = Pipeline(steps = [
-        ("nearest_integer",FunctionTransformer(func = lambda x : np.round(x))),
+        ("nearest_integer",FunctionTransformer(func = nearest_integer)),
         ("scaler",MinMaxScaler())
     ])
 
@@ -236,23 +369,6 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
     missingindicator_ownership_transformer = Pipeline(steps = [
         ("encoder",OneHotEncoder(drop = 'first',sparse_output = False,handle_unknown = 'ignore'))
     ])
-
-    def direction_binner(X):
-
-        columns = X.columns.to_list()
-
-        return (
-            X.assign(
-                direction_tier = lambda df:(
-                    np.where(
-                        df.facing.isin(["North - East","North - West"]),
-                        1,
-                        0
-                    )
-                )
-            )
-            .drop(columns = columns)
-        )
 
     facing_pipe1 = Pipeline(steps = [
         ("encoder",OneHotEncoder(sparse_output = False,handle_unknown = 'ignore'))
@@ -292,65 +408,13 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
         ("encoder",OneHotEncoder(sparse_output = False,handle_unknown = 'ignore'))
     ])
 
-    def has_parking(X):
-
-        columns = X.columns.to_list()
-
-        return (
-            X.assign(
-                has_parking = lambda df:(
-                    np.select(
-                                [
-                                    df.parking_spots.eq(0),
-                                    df.parking_spots.eq(1)
-                                ],
-                                ["no parking","single"],
-                                default = "multiple"
-                            )
-                )
-            )
-            .drop(columns = columns)
-        )
-
     parking_spots_transformer = Pipeline(steps = [
         ("has_parking",FunctionTransformer(func = has_parking)),
         ("encoder",OneHotEncoder(categories = [["multiple","single","no parking"]],drop = [["no parking"]],sparse_output = False,handle_unknown = 'ignore'))
     ])
 
-    def effective_area(X):
-
-        columns = X.columns.to_list()
-
-        return(
-            X
-            .assign(
-                effective_area = lambda df:(
-                    np.where(
-                        df.carpet_area.eq(-1),
-                        df.super_area,
-                        df.carpet_area
-                    )
-                ),
-                carpet_areamissing = lambda df:(
-                    np.where(
-                        df.carpet_area.eq(-1),
-                        1,
-                        0
-                    )
-                ),
-                super_areamissing = lambda df:(
-                    np.where(
-                        df.super_area.eq(-1),
-                        1,
-                        0
-                    )
-                )
-            )
-            .drop(columns = columns)
-        )
-
     scaler_pipeline = Pipeline(steps = [
-        ("log_transformer",FunctionTransformer(func = lambda x: np.log(x))),
+        ("log_transformer",FunctionTransformer(func = log_transformer)),
         ("scaler",RobustScaler())
     ])
 
@@ -361,24 +425,6 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
         ],remainder = "passthrough")),
     ])
 
-    def area_per_room(X):
-
-        columns = X.columns.to_list()
-
-        return(
-            X
-            .assign(
-                area_per_room = lambda df:(
-                    np.where(
-                        df.carpet_area.eq(-1),
-                        df.super_area/df.num_bhk,
-                        df.carpet_area/df.num_bhk
-                    )
-                )
-            )
-            .drop(columns = columns)
-        )
-
 
     area_per_room_transformer = Pipeline(steps = [
         ("area_per_room",FunctionTransformer(func = area_per_room)),
@@ -386,34 +432,6 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
             ("scaler_pipeline",scaler_pipeline,["area_per_room"])
         ],remainder = "passthrough"))
     ])
-
-    def balcony_per_room(X):
-
-        columns = X.columns.to_list()
-
-        return(
-            X
-            .assign(
-                balcony_per_room = lambda df:(
-                    df.balcony/df.num_bhk
-                )
-            )
-            .drop(columns = columns)
-        )
-
-    def bathroom_per_room(X):
-
-        columns = X.columns.to_list()
-
-        return(
-            X
-            .assign(
-                bathroom_per_room = lambda df:(
-                    df.bathroom/df.num_bhk
-                )
-            )
-            .drop(columns = columns)
-        )
 
     balcony_per_room_transformer = Pipeline(steps = [
         ("balcony_per_room",FunctionTransformer(func = balcony_per_room))
@@ -449,10 +467,18 @@ def transform_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.Da
         
     train_df, test_df = interim_dfs
 
-    transformed_train_df = column_transformer.fit_transform(train_df, train_df['amount'])
-    transformed_test_df = column_transformer.transform(test_df)
+    X_train = train_df.drop(columns = ["amount"])
+    y_train = train_df.amount.copy()
+    X_test = test_df.drop(columns = ["amount"])
+    y_test = test_df.amount.copy()
 
-    return (transformed_train_df, transformed_test_df)
+    X_train_transformed = column_transformer.fit_transform(X_train, y_train)
+    X_test_transformed = column_transformer.transform(X_test)
+
+    transformed_train_df = X_train_transformed.join(y_train)
+    transformed_test_df = X_test_transformed.join(y_test)
+
+    return (transformed_train_df, transformed_test_df, column_transformer)
 
 
 

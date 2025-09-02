@@ -33,7 +33,7 @@ class DataPusher:
         raw_data_path = base_folder/self.config.raw_data_path
 
         
-        raw_df = pd.read_csv(raw_data_path)
+        raw_df = pd.read_csv(raw_data_path, encoding = "latin1")
         logger.info("Raw data extracted")
 
         return raw_df

@@ -7,10 +7,10 @@ def give_best_model(model_pipeline: Pipeline, existing_model_pipeline: Optional[
     
     if existing_model_pipeline:
         train_df,test_df = preprocessed_dfs
-        X_train = train_df.drop(columns = ["remainder__amount"])
-        y_train = train_df.remainder__amount.copy()
-        X_test = test_df.drop(columns = ["remainder__amount"])
-        y_test = test_df.remainder__amount.copy()
+        X_train = train_df.drop(columns = ["amount"])
+        y_train = train_df.amount.copy()
+        X_test = test_df.drop(columns = ["amount"])
+        y_test = test_df.amount.copy()
 
         y_train_pred_model = model_pipeline.predict(X_train)
         y_train_pred_existing_model = existing_model_pipeline.predict(X_train)

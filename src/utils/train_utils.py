@@ -67,13 +67,13 @@ def train_and_evaluate(repo_owner: str,repo_name: str,mlflow_tracking_uri: str,r
             ("model", model)
         ])
 
-        X_train = train_df.drop(columns = "remainder__amount")
-        y_train = train_df.remainder__amount.copy()
+        X_train = train_df.drop(columns = "amount")
+        y_train = train_df.amount.copy()
         model_pipeline.fit(X_train, y_train)
 
 
-        X_test = test_df.drop(columns = "remainder__amount")
-        y_test = test_df.remainder__amount.copy()
+        X_test = test_df.drop(columns = "amount")
+        y_test = test_df.amount.copy()
 
         y_train_pred = model_pipeline.predict(X_train)
         y_test_pred = model_pipeline.predict(X_test)

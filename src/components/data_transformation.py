@@ -1,9 +1,12 @@
 import io
 import sys
 import boto3
+import joblib
 import warnings
 import pandas as pd
 from typing import Tuple
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 warnings.filterwarnings("ignore")
 
 from src.logging.logger import get_logger
@@ -24,7 +27,7 @@ class DataTransformation:
       """
       self.config = config
 
-    def ingest_interim_and_transform(self)-> Tuple[pd.DataFrame, pd.DataFrame]:
+    def ingest_interim_and_transform(self)-> Tuple[Tuple[pd.DataFrame, pd.DataFrame], Pipeline, ColumnTransformer]:
        """
        Method to ingest interim data and transform 
 
@@ -51,18 +54,20 @@ class DataTransformation:
        logger.info("Converted train and test to pandas dataframes")
 
        logger.info("Applying imputation on train and test dataframes")
-       imputed_dfs = impute_data(interim_dfs)
+       train_df, test_df, imputation_pipeline = impute_data(interim_dfs)
+       imputed_dfs = (train_df, test_df)
        logger.info("Successfully imputed train and test dataframes")
 
        logger.info("Applying transformation on train and test dataframes")
-       preprocessed_dfs = transform_data(imputed_dfs)
+       train_df, test_df, column_transformer = transform_data(imputed_dfs)
+       preprocessed_dfs = (train_df, test_df)
        logger.info("Successfully transformed train and test dataframes")
 
-       return preprocessed_dfs
+       return (preprocessed_dfs, imputation_pipeline, column_transformer)
     
-    def push_preprocessed_to_s3(self, preprocessed_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> DataTransformationArtifact:
+    def push_preprocessed_to_s3(self, preprocessed_dfs: Tuple[pd.DataFrame, pd.DataFrame]):
         """
-        Method to push train and test data to S3 buckets
+        Method to push train and test data to S3 bucket
 
         """
         train_df, test_df = preprocessed_dfs
@@ -85,15 +90,40 @@ class DataTransformation:
             )
         logger.info("Pushed train and test to S3 bucket")
 
+    def push_pipeline_and_column_transformer_to_s3(self, imputation_pipeline: Pipeline, column_transformer: ColumnTransformer)->DataTransformationArtifact:
+        """
+        Method to push imputation pipeline and column transformer to S3 bucket
+
+        """
+        logger.info("Connecting to S3") 
+        s3_client = boto3.client('s3')
+
+        logger.info("Pushing imputation pipeline and column transformer to S3 bucket")
+        for key,object in [
+           (self.config.imputation_pipeline_key, imputation_pipeline),
+           (self.config.column_transformer_key, column_transformer)
+        ]:
+            
+            joblib_buffer = io.BytesIO()
+            joblib.dump(object, joblib_buffer)
+            s3_client.put_object(
+                Bucket = self.config.bucket_name,
+                Key = key,
+                Body = joblib_buffer.getvalue()
+            )
+        logger.info("Pushed imputation pipeline and column transformer to S3 bucket")
+
         return DataTransformationArtifact()
+
 
 # Example usage
 if __name__ == "__main__":
    try:
         config = DataTransformationConfig()
         data_transformation = DataTransformation(config)
-        preprocessed_dfs = data_transformation.ingest_interim_and_transform()
-        data_transformation_artifact = data_transformation.push_preprocessed_to_s3(preprocessed_dfs)
+        preprocessed_dfs, imputation_pipeline, column_transformer = data_transformation.ingest_interim_and_transform()
+        data_transformation.push_preprocessed_to_s3(preprocessed_dfs)
+        data_transformation_artifact = data_transformation.push_pipeline_and_column_transformer_to_s3(imputation_pipeline, column_transformer)
         print(data_transformation_artifact)
    except Exception as e:
         custom_exp = CustomException(e,sys)

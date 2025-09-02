@@ -11,16 +11,8 @@ from sklearn.base import BaseEstimator,TransformerMixin
 #Setting output to pandas dataframes
 sklearn.set_config(transform_output = 'pandas')
 
-# Function to impute missing data in the feature columns
-def impute_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataFrame, pd.DataFrame]:
-
-    """
-    Function to impute missing data in the feature columns
-
-    """
-
-    # Function to rename the columns before putting back into imputation pipeline
-    def prefix_remover(X, prefixes):
+# Function to rename the columns before putting back into imputation pipeline
+def prefix_remover(X, prefixes):
 
         prefix_list = [f"{prefix}__" for prefix in prefixes]
         new_cols = X.columns
@@ -32,8 +24,8 @@ def impute_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataF
             columns = dict(zip(X.columns,new_cols))
         )
 
-    # Custom imputer to fill missing values using group-wise aggregate statistics
-    class GroupAggregateImputer(BaseEstimator, TransformerMixin):
+# Custom imputer to fill missing values using group-wise aggregate statistics
+class GroupAggregateImputer(BaseEstimator, TransformerMixin):
 
         def __init__(self,variable,group_col,estimator,add_indicator = False):
             self.variable = variable
@@ -78,6 +70,14 @@ def impute_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataF
 
             
             return X
+
+# Function to impute missing data in the feature columns
+def impute_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataFrame, pd.DataFrame, Pipeline]:
+
+    """
+    Function to impute missing data in the feature columns
+
+    """
 
     #Imputation pipeline
 
@@ -218,8 +218,16 @@ def impute_data(interim_dfs: Tuple[pd.DataFrame, pd.DataFrame])-> Tuple[pd.DataF
     
     train_df, test_df = interim_dfs
 
-    imputed_train_df = imputation_pipeline.fit_transform(train_df)
-    imputed_test_df = imputation_pipeline.transform(test_df)
+    X_train = train_df.drop(columns = ["amount"])
+    y_train = train_df.amount.copy()
+    X_test = test_df.drop(columns = ["amount"])
+    y_test = test_df.amount.copy()
 
-    return (imputed_train_df, imputed_test_df)
+    X_train_imputed = imputation_pipeline.fit_transform(X_train)
+    X_test_imputed = imputation_pipeline.transform(X_test)
+
+    imputed_train_df = X_train_imputed.join(y_train)
+    imputed_test_df = X_test_imputed.join(y_test)
+
+    return (imputed_train_df, imputed_test_df, imputation_pipeline)
          

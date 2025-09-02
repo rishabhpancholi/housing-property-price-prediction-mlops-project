@@ -55,6 +55,8 @@ class DataTransformationConfig(DataValidationConfig):
     """
     preprocessed_train_data_key:str = os.getenv("PREPROCESSED_TRAIN_DATA_KEY")
     preprocessed_test_data_key:str = os.getenv("PREPROCESSED_TEST_DATA_KEY")
+    imputation_pipeline_key:str = os.getenv("IMPUTATION_PIPELINE_KEY")
+    column_transformer_key:str = os.getenv("COLUMN_TRANSFORMER_KEY")
 
 @dataclass
 class ModelTrainerConfig:
