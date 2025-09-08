@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 def clean_data(data:pd.DataFrame)->pd.DataFrame:
         # convert the values to crores scale
