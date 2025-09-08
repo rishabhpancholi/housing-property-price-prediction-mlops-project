@@ -27,8 +27,7 @@ class DataPusher:
             self.config = config
             logger.info("Initiating data pusher")
         except Exception as e:
-            custom_exc = CustomException(e,sys)
-            logger.error(custom_exc)
+            raise CustomException(e,sys)
 
     def extract_clean_and_convert_to_json(self)->list:
         try:
@@ -41,8 +40,7 @@ class DataPusher:
             logger.info("Converting csv to json completed")
             return records       
         except Exception as e:
-            custom_exc = CustomException(e,sys)
-            logger.error(custom_exc)
+            raise CustomException(e,sys)
 
     def insert_data_to_mongodb(self,records:list)->int:
         try:
@@ -55,8 +53,7 @@ class DataPusher:
             client.close()
             return len(records)
         except Exception as e:
-            custom_exc = CustomException(e,sys)
-            logger.error(custom_exc)
+            raise CustomException(e,sys)
 
 if __name__ == "__main__":
     data_pusher = DataPusher(DataPusherConfig())
