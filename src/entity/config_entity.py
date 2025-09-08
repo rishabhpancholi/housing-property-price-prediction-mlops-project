@@ -1,17 +1,15 @@
 import yaml
 from pathlib import Path
 from src.constants import *
-from datetime import datetime
 
 # Loading Params
 params = yaml.safe_load(open('params.yaml'))
 
 # TrainingPipelineConfig class
 class TrainingPipelineConfig:
-    def __init__(self,timestamp = datetime.now()):
-        timestamp: str = timestamp.strftime("%m_%d_%Y_%H_%M_%S")
+    def __init__(self):
         self.pipeline_name: str = PIPELINE_NAME
-        self.artifact_path: Path = Path(ARTIFACT_DIR)/timestamp
+        self.artifact_path: Path = Path(ARTIFACT_DIR)
 
 
 # DataIngestionConfig class
