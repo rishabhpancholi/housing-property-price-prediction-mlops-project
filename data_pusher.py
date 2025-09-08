@@ -1,14 +1,24 @@
+import os
 import sys
 import json
 import pymongo
 import pandas as pd
+from pathlib import Path
+from dataclasses import dataclass
 from src.utils import clean_data
 from src.logging import get_logger
 from src.exception import CustomException
-from src.entity.config_entity import DataPusherConfig
 
 # Configure logger
 logger = get_logger('data_pusher')
+
+# DataPusherConfig class
+@dataclass
+class DataPusherConfig:
+    mongo_db_url:str = os.getenv('MONGO_DB_URL')
+    raw_data_path:Path = Path('raw_data/houses.csv')
+    database_name:str = 'housing-property-price-prediction'      
+    collection_name:str = 'HouseData'
 
 # DataPusher class
 class DataPusher:
@@ -37,7 +47,6 @@ class DataPusher:
     def insert_data_to_mongodb(self,records:list)->int:
         try:
             logger.info("Inserting data to mongodb")
-            ca = self.config.ca
             client = pymongo.MongoClient(self.config.mongo_db_url)
             db = client[self.config.database_name]
             collection = db[self.config.collection_name]
