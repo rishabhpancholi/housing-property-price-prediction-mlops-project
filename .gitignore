@@ -216,3 +216,8 @@ __marimo__/
 
 #api
 /api
+
+#files
+test_mongodb.py
+/raw_data
+/artifacts
