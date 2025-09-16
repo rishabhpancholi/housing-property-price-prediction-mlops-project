@@ -4,7 +4,7 @@ import pandas as pd
 def clean_data(data:pd.DataFrame)->pd.DataFrame:
         # convert the values to crores scale
         
-        def convert_to_crores(ser):
+        def convert_to_crores(ser: pd.Series)->pd.Series:
             return(
                     ser
                     .str.split(" ",expand = True)
@@ -38,7 +38,7 @@ def clean_data(data:pd.DataFrame)->pd.DataFrame:
             "bigha": 27225
         }
         
-        def remove_area_units_and_standardize(ser):
+        def remove_area_units_and_standardize(ser: pd.Series)->pd.Series:
             return(
                 ser
                 .str.replace(",","")
@@ -69,6 +69,7 @@ def clean_data(data:pd.DataFrame)->pd.DataFrame:
                 super_area = lambda df: df.super_area.pipe(remove_area_units_and_standardize),
                 floor = lambda df: df.floor.str.replace("200 out of 200","2 out of 2"),
                 car_parking = lambda df: df.car_parking.str.replace(",",""),
+                facing = lambda df: df.facing.str.replace("South -West","South - West"),
                 num_bhk = lambda df: (
                     pd.to_numeric(
                         np.where(
