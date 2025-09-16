@@ -1,5 +1,6 @@
+import io
 import sys
-import pymongo
+import boto3
 import pandas as pd
 
 from src.logging import get_logger
@@ -19,19 +20,20 @@ class DataIngestion:
         except Exception as e:
             raise CustomException(e,sys)
 
-    def export_collection_as_dataframe(self)->pd.DataFrame:
+    def import_collection_as_dataframe(self)->pd.DataFrame:
         try:
-            database_name = self.data_ingestion_config.database_name
-            collection_name = self.data_ingestion_config.collection_name
-            mongo_db_url = self.data_ingestion_config.mongo_db_url
+            bucket_name: str = self.data_ingestion_config.bucket_name
+            data_key: str = self.data_ingestion_config.data_key
 
-            logger.info("Exporting collection as dataframe")
-            self.mongo_client = pymongo.MongoClient(mongo_db_url)
-            collection = self.mongo_client[database_name][collection_name]
-            count = collection.count_documents({})
-            logger.info(f"Collection '{collection_name}' in DB '{database_name}' has {count} documents")
-            df = pd.DataFrame(list(collection.find()))
-            logger.info("Exporting collection as dataframe completed")
+            logger.info("Importing collection as dataframe")
+            client = boto3.client('s3')
+            response = client.get_object(
+               Bucket = bucket_name,
+               Key = data_key
+            )
+            content = response['Body'].read()
+            df = pd.read_csv(io.BytesIO(content),encoding='latin1')
+            logger.info("Importing collection as dataframe completed")
 
             return df
         except Exception as e:
@@ -42,7 +44,8 @@ class DataIngestion:
             logger.info("Exporting data to feature store")
             feature_store_path = self.data_ingestion_config.feature_store_path
             feature_store_path.parent.mkdir(parents=True,exist_ok=True)
-            df.to_csv(feature_store_path,index=False,header=True)
+            feature_store_df = df.drop(columns = ["index"],axis=1)
+            feature_store_df.to_csv(feature_store_path,index=False,header=True)
             logger.info("Exporting data to feature store completed")
 
             return df
@@ -55,6 +58,8 @@ class DataIngestion:
             train_df,test_df = train_test_split(
                 df,test_ratio=self.data_ingestion_config.train_test_split_ratio
             )
+            train_df = train_df.drop(columns = ["index"],axis=1)
+            test_df = test_df.drop(columns = ["index"],axis=1)
             logger.info("Splitting data as train and test completed")
 
             logger.info("Exporting train and test data to respective file paths")
@@ -76,7 +81,7 @@ class DataIngestion:
     def initiate_data_ingestion(self)->DataIngestionArtifact:
         try:
             logger.info("Initiating data ingestion")
-            df = self.export_collection_as_dataframe()
+            df = self.import_collection_as_dataframe()
             df = self.export_data_to_feature_store(df)
             self.split_data_as_train_test(df)
             logger.info("Data ingestion completed")
