@@ -11,11 +11,23 @@ ARTIFACT_DIR: str = "artifacts"
 FILE_NAME: str = "houses.csv"
 TRAIN_FILE_NAME: str = "train.csv"
 TEST_FILE_NAME: str = "test.csv"
+PARAMS_FILE_NAME: str = "params.yaml"
+SCHEMA_FILE_PATH: str = "data_schema/schema.yaml"
 
 """Data Ingestion related constants"""
-DATA_INGESTION_MONGO_DB_URL: str = os.getenv("MONGO_DB_URL")
-DATA_INGESTION_DATABASE_NAME: str = "housing-property-price-prediction"
-DATA_INGESTION_COLLECTION_NAME: str = "HouseData"
+DATA_INGESTION_BUCKET_NAME: str = "housepricesbucket130256"
+DATA_INGESTION_DATA_KEY: str = "data/houses.csv"
 DATA_INGESTION_DIR_NAME: str = "data_ingestion"
-DATA_INGESTION_FEATURE_STORE_DIR: str = "feature_store"
 DATA_INGESTION_INGESTED_DIR: str = "ingested"
+DATA_INGESTION_FEATURE_STORE_DIR: str = "feature_store"
+
+
+"""Data Validation related constants"""
+DATA_VALIDATION_DIR_NAME: str = "data_validation"
+DATA_VALIDATION_VALID_DIR: str = "validated"
+
+"""Data Transformation related constants"""
+DATA_TRANSFORMATION_DIR_NAME: str = "data_transformation"
+DATA_TRANSFORMATION_TRANSFORMED_DIR: str = "transformed"
+DATA_TRANSFORMATION_PREPROCESSOR_DIR: str = "preprocessor"
+DATA_TRANSFORMATION_PREPROCESSOR_FILE_NAME: str = "preprocessor.joblib"
