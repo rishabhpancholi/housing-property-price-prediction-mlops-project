@@ -1,7 +1,6 @@
-import os
+import io
 import sys
-import json
-import pymongo
+import boto3
 import pandas as pd
 from pathlib import Path
 from dataclasses import dataclass
@@ -15,7 +14,8 @@ logger = get_logger('data_pusher')
 # DataPusherConfig class
 @dataclass
 class DataPusherConfig:
-    mongo_db_url:str = os.getenv('MONGO_DB_URL')
+    bucket_name: str = 'housepricesbucket130256'
+    data_key: str = 'data/houses.csv'
     raw_data_path:Path = Path('raw_data/houses.csv')
     database_name:str = 'housing-property-price-prediction'      
     collection_name:str = 'HouseData'
@@ -29,38 +29,36 @@ class DataPusher:
         except Exception as e:
             raise CustomException(e,sys)
 
-    def extract_clean_and_convert_to_json(self)->list:
+    def extract_and_clean(self)->pd.DataFrame:
         try:
             logger.info("Converting csv to json")
             data = pd.read_csv(self.config.raw_data_path,encoding='latin1')
             logger.info("Data cleaning started")
             data = clean_data(data)
             logger.info("Data cleaning completed")
-            records = list(json.loads(data.T.to_json()).values())
-            logger.info("Converting csv to json completed")
-            return records       
+            return data     
         except Exception as e:
             raise CustomException(e,sys)
 
-    def insert_data_to_mongodb(self,records:list)->int:
+    def insert_data_to_s3(self,data:pd.DataFrame)->int:
         try:
-            logger.info("Inserting data to mongodb")
-            client = pymongo.MongoClient(self.config.mongo_db_url)
-            db = client[self.config.database_name]
-            collection = db[self.config.collection_name]
-            collection.insert_many(records)
-            logger.info("Inserting data to mongodb completed")
-            client.close()
-            return len(records)
+            logger.info("Inserting data to s3")
+            client = boto3.client('s3')
+            csv_buffer = io.StringIO()
+            data.to_csv(csv_buffer,index=False)
+            client.put_object(
+                Bucket=self.config.bucket_name,
+                Key=self.config.data_key,
+                Body=csv_buffer.getvalue()
+            )
+            logger.info("Inserting data to s3 completed")
         except Exception as e:
             raise CustomException(e,sys)
 
 if __name__ == "__main__":
     data_pusher = DataPusher(DataPusherConfig())
-    records = data_pusher.extract_clean_and_convert_to_json()
-    length = data_pusher.insert_data_to_mongodb(records)
-    logger.info(f"Inserted {length} records to mongodb")
-
+    data = data_pusher.extract_and_clean()
+    length = data_pusher.insert_data_to_s3(data)
 
 
 
