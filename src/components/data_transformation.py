@@ -1,8 +1,4 @@
 import sys
-import pandas as pd
-from pathlib import Path
-from sklearn.pipeline import Pipeline
-
 from src.utils import *
 from src.logging import get_logger
 from src.exception import CustomException
@@ -42,7 +38,7 @@ class DataTransformation:
             logger.info("Imputing missing values in train and test dataframes")
             imputer = get_imputer_object()
             X_train = imputer.fit_transform(X_train)
-            X_test = imputer.transform(X_train)
+            X_test = imputer.transform(X_test)
             logger.info("Imputed missing values in train and test dataframes")
 
             logger.info("Making features in train and test dataframes")

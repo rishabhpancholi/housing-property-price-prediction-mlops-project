@@ -1,7 +1,5 @@
 import sys
 import pandas as pd
-from pathlib import Path
-
 from src.utils import *
 from src.logging import get_logger
 from src.exception import CustomException

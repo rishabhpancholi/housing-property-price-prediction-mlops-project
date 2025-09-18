@@ -2,9 +2,8 @@ import io
 import sys
 import boto3
 import pandas as pd
-
+from src.utils import *
 from src.logging import get_logger
-from src.utils import train_test_split
 from src.exception import CustomException
 from src.entity.config_entity import DataIngestionConfig
 from src.entity.artifact_entity import DataIngestionArtifact
