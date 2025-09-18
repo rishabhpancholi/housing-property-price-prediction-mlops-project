@@ -31,3 +31,8 @@ DATA_TRANSFORMATION_DIR_NAME: str = "data_transformation"
 DATA_TRANSFORMATION_TRANSFORMED_DIR: str = "transformed"
 DATA_TRANSFORMATION_PREPROCESSOR_DIR: str = "preprocessor"
 DATA_TRANSFORMATION_PREPROCESSOR_FILE_NAME: str = "preprocessor.joblib"
+
+"""Model Trainer related constants"""
+MODEL_TRAINER_DIR_NAME: str = "model_trainer"
+MODEL_TRAINER_TRAINED_MODEL_DIR_NAME: str = "trained_model"
+MODEL_TRAINER_TRAINED_MODEL_FILE_NAME: str = "model.joblib"
