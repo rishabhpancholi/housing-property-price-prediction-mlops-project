@@ -40,3 +40,12 @@ class DataTransformationConfig:
         self.transformed_test_file_path: Path = self.transformed_data_dir/TEST_FILE_NAME
         self.target_column: str = TARGET_COLUMN
         self.preprocessing_object_file_path: Path = self.data_transformation_dir/DATA_TRANSFORMATION_PREPROCESSOR_DIR/DATA_TRANSFORMATION_PREPROCESSOR_FILE_NAME
+
+# ModelTrainerConfig class
+class ModelTrainerConfig:
+    def __init__(self,training_pipeline_config: TrainingPipelineConfig):
+        self.model_trainer_dir: Path = training_pipeline_config.artifact_path/MODEL_TRAINER_DIR_NAME
+        self.trained_model_file_path: Path = self.model_trainer_dir/MODEL_TRAINER_TRAINED_MODEL_DIR_NAME/MODEL_TRAINER_TRAINED_MODEL_FILE_NAME
+        self.kfold_nsplits: int = training_pipeline_config.params['model_trainer']['MODEL_TRAINER_KFOLD_NSPLITS']
+        self.optuna_ntrials: int = training_pipeline_config.params['model_trainer']['MODEL_TRAINER_OPTUNA_NTRIALS']
+        self.target_column: str = TARGET_COLUMN

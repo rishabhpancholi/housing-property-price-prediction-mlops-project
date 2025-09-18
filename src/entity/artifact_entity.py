@@ -21,3 +21,9 @@ class DataTransformationArtifact:
     transformed_test_file_path: str
     preprocessor_file_path: str
 
+# ModelTrainerArtifact class
+@dataclass
+class ModelTrainerArtifact:
+    model_file_path: str
+    model_train_rmse: float
+    model_test_rmse: float
