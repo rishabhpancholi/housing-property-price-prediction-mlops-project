@@ -80,8 +80,8 @@ class ModelTrainer:
 
             model_trainer_artifact = ModelTrainerArtifact(
                  model_file_path=self.trained_model_path,
-                 model_train_rmse=model_metrics["train_mae"],
-                 model_test_rmse=model_metrics["test_mae"]
+                 model_train_mae=model_metrics["train_mae"],
+                 model_test_mae=model_metrics["test_mae"]
             )
             return model_trainer_artifact
         except Exception as e:
