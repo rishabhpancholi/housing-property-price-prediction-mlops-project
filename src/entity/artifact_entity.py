@@ -25,5 +25,5 @@ class DataTransformationArtifact:
 @dataclass
 class ModelTrainerArtifact:
     model_file_path: str
-    model_train_rmse: float
-    model_test_rmse: float
+    model_train_mae: float
+    model_test_mae: float
