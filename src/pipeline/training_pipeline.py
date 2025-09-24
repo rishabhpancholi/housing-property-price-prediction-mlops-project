@@ -5,7 +5,8 @@ from src.components.data_ingestion import DataIngestion
 from src.components.data_validation import DataValidation
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer import ModelTrainer
-from src.entity.config_entity import TrainingPipelineConfig,DataIngestionConfig,DataValidationConfig,DataTransformationConfig,ModelTrainerConfig
+from src.components.model_pusher import ModelPusher
+from src.entity.config_entity import TrainingPipelineConfig,DataIngestionConfig,DataValidationConfig,DataTransformationConfig,ModelTrainerConfig,ModelPusherConfig
 from src.entity.artifact_entity import DataIngestionArtifact,DataValidationArtifact,DataTransformationArtifact,ModelTrainerArtifact
 
 # Configure logger
@@ -19,6 +20,7 @@ class TrainingPipeline:
         self.data_validation_config = DataValidationConfig(training_pipeline_config=training_pipeline_config)
         self.data_transformation_config = DataTransformationConfig(training_pipeline_config=training_pipeline_config)
         self.model_trainer_config = ModelTrainerConfig(training_pipeline_config=training_pipeline_config)
+        self.model_pusher_config = ModelPusherConfig()
 
     def start_data_ingestion(self)->DataIngestionArtifact:
         self.data_ingestion = DataIngestion(data_ingestion_config=self.data_ingestion_config)
@@ -40,6 +42,10 @@ class TrainingPipeline:
         self.model_trainer_artifact = self.model_trainer.initiate_model_trainer()
         return self.model_trainer_artifact
     
+    def start_model_pusher(self):
+        self.model_saver = ModelPusher(data_transformation_artifact=self.data_transformation_artifact,model_trainer_artifact=self.model_trainer_artifact,model_pusher_config=self.model_pusher_config)
+        self.model_saver.initiate_model_pusher()
+    
 if __name__ == "__main__":
     try:
         logger.info("Initiating training pipeline")
@@ -50,7 +56,8 @@ if __name__ == "__main__":
         data_validation_artifact = training_pipeline.start_data_validation()
         data_transformation_artifact = training_pipeline.start_data_transformation()
         model_trainer_artifact = training_pipeline.start_model_trainer()
+        training_pipeline.start_model_pusher()
 
-        logger.info(f"Training pipeline completed with train mae {model_trainer_artifact.model_train_mae} and test mae {model_trainer_artifact.model_test_mae}")
+        logger.info(f"Training pipeline completed with train mae {model_trainer_artifact.model_train_mae} and test mae {model_trainer_artifact.model_test_mae} and model pipeline pushed to S3 successfully")
     except Exception as e:
         raise CustomException(e,sys)

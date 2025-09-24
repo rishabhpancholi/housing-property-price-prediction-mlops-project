@@ -97,7 +97,7 @@ def get_imputer_object()-> Pipeline:
         ])
 
         balcony_imputer = ColumnTransformer(transformers = [
-            ("balcony_imputer", GroupAggregateImputer(variable = "balcony",group_col = "num_bhk",estimator = "median", add_indicator = True),["balcony","num_bhk"])
+            ("balcony_imputer", GroupAggregateImputer(variable = "balcony",group_col = "num_bhk",estimator = "median"),["balcony","num_bhk"])
         ],remainder = "passthrough")
 
         balcony_imputation_pipeline = Pipeline(steps = [

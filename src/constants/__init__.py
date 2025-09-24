@@ -36,3 +36,7 @@ DATA_TRANSFORMATION_PREPROCESSOR_FILE_NAME: str = "preprocessor.joblib"
 MODEL_TRAINER_DIR_NAME: str = "model_trainer"
 MODEL_TRAINER_TRAINED_MODEL_DIR_NAME: str = "trained_model"
 MODEL_TRAINER_TRAINED_MODEL_FILE_NAME: str = "model.joblib"
+
+"""Model Pusher related constants"""
+MODEL_PUSHER_BUCKET_NAME: str = "housepricesbucket130256"
+MODEL_PUSHER_MODEL_PIPELINE_KEY: str = "model_pipeline"

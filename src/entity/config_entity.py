@@ -49,3 +49,8 @@ class ModelTrainerConfig:
         self.kfold_nsplits: int = training_pipeline_config.params['model_trainer']['MODEL_TRAINER_KFOLD_NSPLITS']
         self.optuna_ntrials: int = training_pipeline_config.params['model_trainer']['MODEL_TRAINER_OPTUNA_NTRIALS']
         self.target_column: str = TARGET_COLUMN
+
+class ModelPusherConfig:
+    def __init__(self):
+        self.bucket_name: str = MODEL_PUSHER_BUCKET_NAME
+        self.model_pipeline_key: str = MODEL_PUSHER_MODEL_PIPELINE_KEY
